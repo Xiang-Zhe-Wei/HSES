@@ -1,0 +1,20 @@
+Compilation flags:
+========================================
+Enable : MODEL=HYDRO
+Disable: GRAVITY, PARTICLE
+
+
+Default setup:
+========================================
+1. Adopt the Lohner's error estimator on pressure as the refinement criteria
+   --> Refinement threshold = 0.80
+
+2. central region's Maximum refinement level (MAX_LEVEL) = 2, while the outer region remains at level 0
+
+Note:
+========================================
+1. Four plot scripts are provided:
+      "plot_Press.py" 
+      "plot_Rho.py"
+      "plot_slice_gas.py" --> Use yt’s SlicePlot to create a density slice through the center of the simulation box.
+      "radial_profile_evolution.py" --> Use yt’s ProfilePlot to plot the time evolution of the radial density profile and compare it with the initial analytical density curve, thereby demonstrating that the system remains in hydrostatic equilibrium.

@@ -1,0 +1,462 @@
+
+
+
+Simulation Notes
+***********************************************************************************
+***********************************************************************************
+
+
+Makefile Options (numerical schemes)
+***********************************************************************************
+MODEL                           HYDRO
+GRAVITY                         ON
+POT_SCHEME                      SOR
+STORE_POT_GHOST                 ON
+UNSPLIT_GRAVITY                 ON
+COMOVING                        OFF
+PARTICLE                        OFF
+SUPPORT_GRACKLE                 OFF
+FLU_SCHEME                      CTU
+LR_SCHEME                       PPM
+RSOLVER                         HLLC
+DUAL_ENERGY                     NONE
+MHD                             OFF
+SRHD                            OFF
+COSMIC_RAY                      OFF
+EOS                             EOS_GAMMA
+BAROTROPIC_EOS                  OFF
+***********************************************************************************
+
+
+Makefile Options (optimization and compilation)
+***********************************************************************************
+GPU                             OFF
+GAMER_DEBUG                     OFF
+BITWISE_REPRODUCIBILITY         OFF
+TIMING                          ON
+TIMING_SOLVER                   OFF
+FLOAT8                          OFF
+FLOAT8_PAR                      OFF
+INT8_PAR                        OFF
+SERIAL                          ON
+LOAD_BALANCE                    OFF
+OVERLAP_MPI                     OFF
+OPENMP                          OFF
+LAOHU                           OFF
+SUPPORT_HDF5                    ON
+SUPPORT_GSL                     ON
+SUPPORT_FFTW                    FFTW3
+SUPPORT_LIBYT                   OFF
+RANDOM_NUMBER                   RNG_CPP11
+SUPPORT_SPECTRAL_INT            OFF
+***********************************************************************************
+
+
+Other Options (in Macro.h, CUFLU.h and CUPOT.h)
+***********************************************************************************
+BIT_REP_FLUX                    OFF
+INTERP_MASK                     ON
+FB_SEP_FLUOUT                   OFF
+CHECK_UNPHYSICAL_IN_FLUID       OFF
+CHAR_RECONSTRUCTION             OFF
+LR_EINT                         OFF
+CHECK_INTERMEDIATE              OFF
+RSOLVER_RESCUE                  HLLE
+HLL_NO_REF_STATE                ON
+HLL_INCLUDE_ALL_WAVES           ON
+HLLC_WAVESPEED                  3
+HLLE_WAVESPEED                  3
+MHM_CHECK_PREDICT               OFF
+***********************************************************************************
+
+
+Symbolic Constants
+***********************************************************************************
+#define VERSION                 gamer-2.3.dev
+#define NCOMP_FLUID             5
+#define NCOMP_PASSIVE           0
+#define FLU_NIN                 5
+#define FLU_NOUT                5
+#define FLU_NIN_T               5
+#define FLU_NIN_S               5
+#define FLU_NOUT_S              5
+#define DER_NOUT_MAX            10
+#define NFIELD_STORED_MAX       50
+#define NCONREF_MAX             60
+#define NFLUX_FLUID             5
+#define NFLUX_PASSIVE           0
+#define GRA_NIN                 5
+#define PATCH_SIZE              8
+#define MAX_PATCH               1000000
+#define NLEVEL                  10
+
+#define FLU_GHOST_SIZE          3
+#define LR_GHOST_SIZE           2
+#define POT_GHOST_SIZE          5
+#define RHO_GHOST_SIZE          4
+#define GRA_GHOST_SIZE          2
+#define USG_GHOST_SIZE_F        1
+#define USG_GHOST_SIZE_G        1
+#define SRC_GHOST_SIZE          0
+#define DER_GHOST_SIZE          1
+#define FLU_NXT                 22
+#define POT_NXT                 12
+#define RHO_NXT                 16
+#define GRA_NXT                 12
+#define USG_NXT_F               18
+#define USG_NXT_G               10
+#define SRC_NXT                 8
+#define DER_NXT                 10
+#define EOS_NAUX_MAX            20
+#define EOS_NTABLE_MAX          20
+#define EXT_POT_NAUX_MAX        20
+#define EXT_ACC_NAUX_MAX        20
+#define EXT_POT_NGENE_MAX       6
+#define SRC_NAUX_DLEP           5
+#define SRC_DLEP_PROF_NVAR      6
+#define SRC_DLEP_PROF_NBINMAX   4000
+#define SRC_NAUX_USER           10
+#define MAX_STRING              512
+#define TINY_NUMBER             1.17549435082229e-38
+#define HUGE_NUMBER             3.40282346638529e+38
+#define MAX_ERROR               9.99999997475243e-07
+***********************************************************************************
+
+
+Parameters of Simulation Scale
+***********************************************************************************
+BOX_SIZE (input)                1.00000000000000e+00
+BOX_SIZE_X                      1.00000000000000e+00
+BOX_SIZE_Y                      1.00000000000000e+00
+BOX_SIZE_Z                      1.00000000000000e+00
+BOX_SCALE_X                     16384
+BOX_SCALE_Y                     16384
+BOX_SCALE_Z                     16384
+NX0_TOT[0]                      32
+NX0_TOT[1]                      32
+NX0_TOT[2]                      32
+MPI_NRank                       1
+MPI_NRank_X[0]                  1
+MPI_NRank_X[1]                  1
+MPI_NRank_X[2]                  1
+OMP_NTHREAD                     1
+END_T                           1.82746845622079e-01
+END_STEP                        2147483647
+***********************************************************************************
+
+
+Parameters of Test Problems
+***********************************************************************************
+TESTPROB_ID                     102
+***********************************************************************************
+
+
+Parameters of Code Units
+***********************************************************************************
+OPT__UNIT                       0
+***********************************************************************************
+
+
+Parameters of Boundary Condition
+***********************************************************************************
+OPT__BC_FLU[0] (-x)             2
+OPT__BC_FLU[1] (+x)             2
+OPT__BC_FLU[2] (-y)             2
+OPT__BC_FLU[3] (+y)             2
+OPT__BC_FLU[4] (-z)             2
+OPT__BC_FLU[5] (+z)             2
+OPT__BC_POT                     2
+GFUNC_COEFF0                    3.8000000e+00
+***********************************************************************************
+
+
+Parameters of Time-step Determination
+***********************************************************************************
+DT__MAX                        -1.0000000e+00
+DT__FLUID                       5.0000000e-01
+DT__FLUID_INIT                  5.0000000e-01
+DT__GRAVITY                     5.0000000e-01
+DT__SYNC_PARENT_LV              1.0000000e-01
+DT__SYNC_CHILDREN_LV            1.0000000e-01
+OPT__DT_USER                    0
+OPT__DT_LEVEL                   3
+AUTO_REDUCE_DT                  1
+AUTO_REDUCE_DT_FACTOR           8.0000000e-01
+AUTO_REDUCE_DT_FACTOR_MIN       1.0000000e-01
+AUTO_REDUCE_MINMOD_FACTOR       8.0000000e-01
+AUTO_REDUCE_MINMOD_MIN          1.0000000e-02
+AUTO_REDUCE_INT_MONO_FACTOR     8.0000000e-01
+AUTO_REDUCE_INT_MONO_MIN        1.0000000e-02
+OPT__RECORD_DT                  1
+***********************************************************************************
+
+
+Parameters of Domain Refinement
+***********************************************************************************
+REGRID_COUNT                    4
+REFINE_NLEVEL                   1
+FLAG_BUFFER_SIZE                8
+FLAG_BUFFER_SIZE_MAXM1_LV       4
+FLAG_BUFFER_SIZE_MAXM2_LV       6
+MAX_LEVEL                       3
+OPT__FLAG_RHO                   0
+OPT__FLAG_RHO_GRADIENT          0
+OPT__FLAG_PRES_GRADIENT         0
+OPT__FLAG_VORTICITY             0
+OPT__FLAG_JEANS                 0
+OPT__FLAG_LOHNER_DENS           0
+OPT__FLAG_LOHNER_ENGY           0
+OPT__FLAG_LOHNER_PRES           1
+OPT__FLAG_LOHNER_TEMP           0
+OPT__FLAG_LOHNER_ENTR           0
+OPT__FLAG_LOHNER_FORM           LOHNER_FLASH2
+OPT__FLAG_USER                  1
+OPT__FLAG_USER_NUM              1
+OPT__FLAG_REGION                0
+OPT__FLAG_ANGULAR               0
+OPT__FLAG_RADIAL                0
+OPT__NO_FLAG_NEAR_BOUNDARY      0
+OPT__PATCH_COUNT                1
+OPT__REUSE_MEMORY               2
+OPT__MEMORY_POOL                0
+***********************************************************************************
+
+
+Parameters of Source Terms
+***********************************************************************************
+SRC_ANY                         0
+SRC_DELEPTONIZATION             0
+SRC_USER                        0
+SRC_GPU_NPGROUP                 1
+***********************************************************************************
+
+
+Parameters of Fluid Solver (in different models)
+***********************************************************************************
+GAMMA                           1.4000000e+00
+MOLECULAR_WEIGHT                6.0000000e-01
+MU_NORM                         1.6735328e-24
+ISO_TEMP                        1.7976931e+308
+MINMOD_COEFF                    1.5000000e+00
+MINMOD_MAX_ITER                 0
+OPT__LR_LIMITER                 VL_GMINMOD
+OPT__1ST_FLUX_CORR              3D1D
+OPT__1ST_FLUX_CORR_SCHEME       RSOLVER_1ST_HLLE
+***********************************************************************************
+
+
+Parameters of Fluid Solver (in all models)
+***********************************************************************************
+FLU_GPU_NPGROUP                 1
+GPU_NSTREAM                     1
+OPT__FIXUP_FLUX                 1
+   Target fields                Dens MomX MomY MomZ Engy
+OPT__FIXUP_RESTRICT             1
+   Target fields                Dens MomX MomY MomZ Engy
+OPT__CORR_AFTER_ALL_SYNC        2
+OPT__NORMALIZE_PASSIVE          0
+   Number of fields             0
+OPT__INT_FRAC_PASSIVE_LR        0
+   Number of fields             0
+OPT__OVERLAP_MPI                0
+OPT__RESET_FLUID                0
+OPT__RESET_FLUID_INIT           0
+OPT__FREEZE_FLUID               0
+MIN_DENS                        0.0000000e+00
+MIN_PRES                        0.0000000e+00
+MIN_EINT                        0.0000000e+00
+MIN_TEMP                        0.0000000e+00
+MIN_ENTR                        0.0000000e+00
+OPT__CHECK_PRES_AFTER_FLU       0
+OPT__LAST_RESORT_FLOOR          1
+JEANS_MIN_PRES                  0
+WITH_COARSE_FINE_FLUX           1
+FFTW3_Double_OMP_Enabled        0
+FFTW3_Single_OMP_Enabled        0
+***********************************************************************************
+
+
+Parameters of Poisson and Gravity Solvers
+***********************************************************************************
+NEWTON_G                        1.0000000e+00
+SOR_OMEGA                       1.7040882e+00
+SOR_MAX_ITER                    94
+SOR_MIN_ITER                    18
+POT_GPU_NPGROUP                 1
+OPT__GRA_P5_GRADIENT            0
+OPT__SELF_GRAVITY               1
+OPT__EXT_ACC                    0
+OPT__EXT_POT                    0
+OPT__GRAVITY_EXTRA_MASS         0
+AveDensity_Init                 1.4354978e-01
+***********************************************************************************
+
+
+Parameters of Initialization
+***********************************************************************************
+OPT__INIT                       1
+RESTART_LOAD_NRANK              1
+OPT__RESTART_RESET              0
+OPT__UM_IC_LEVEL                0
+OPT__UM_IC_NLEVEL               1
+OPT__UM_IC_NVAR                -1
+OPT__UM_IC_FORMAT               1
+OPT__UM_IC_FLOAT8              -1
+OPT__UM_IC_DOWNGRADE            1
+OPT__UM_IC_REFINE               1
+OPT__UM_IC_LOAD_NRANK           1
+OPT__INIT_RESTRICT              1
+OPT__INIT_GRID_WITH_OMP         0
+OPT__GPUID_SELECT              -1
+INIT_SUBSAMPLING_NCELL          4
+OPT__FFTW_STARTUP               FFTW_ESTIMATE
+***********************************************************************************
+
+
+Parameters of Interpolation Schemes
+***********************************************************************************
+OPT__INT_TIME                   1
+OPT__INT_PRIM                   1
+OPT__FLU_INT_SCHEME             CQUAD
+OPT__POT_INT_SCHEME             CQUAD
+OPT__RHO_INT_SCHEME             CQUAD
+OPT__GRA_INT_SCHEME             CQUAD
+OPT__REF_FLU_INT_SCHEME         CQUAD
+OPT__REF_POT_INT_SCHEME         CQUAD
+INT_MONO_COEFF                  2.0000000e+00
+MONO_MAX_ITER                   10
+INT_OPP_SIGN_0TH_ORDER          1
+***********************************************************************************
+
+
+Parameters of Data Dump
+***********************************************************************************
+OPT__OUTPUT_TOTAL               1
+OPT__OUTPUT_PART                7
+OPT__OUTPUT_USER                0
+OPT__OUTPUT_TEXT_FORMAT_FLT     %24.16e
+OPT__OUTPUT_TEXT_LENGTH_INT     12
+OPT__OUTPUT_BASEPS              0
+OPT__OUTPUT_BASE                0
+OPT__OUTPUT_POT                 1
+OPT__OUTPUT_PRES                0
+OPT__OUTPUT_TEMP                0
+OPT__OUTPUT_ENTR                0
+OPT__OUTPUT_CS                  0
+OPT__OUTPUT_DIVVEL              0
+OPT__OUTPUT_MACH                0
+OPT__OUTPUT_USER_FIELD          0
+OPT__OUTPUT_MODE                2
+OPT__OUTPUT_RESTART             0
+OUTPUT_STEP                     5
+OUTPUT_DT                       5.00000000000000e-04
+OUTPUT_WALLTIME                -1.00000000000000e+00
+OUTPUT_WALLTIME_UNIT            0
+OUTPUT_PART_X                   5.00000000000000e-01
+OUTPUT_PART_Y                   5.00000000000000e-01
+OUTPUT_PART_Z                   5.00000000000000e-01
+INIT_DUMPID                    -1
+OUTPUT_DIR                      .
+***********************************************************************************
+
+
+Parameters of Miscellaneous Purposes
+***********************************************************************************
+OPT__VERBOSE                    0
+OPT__TIMING_BARRIER             0
+OPT__TIMING_BALANCE             0
+OPT__TIMING_MPI                 0
+OPT__RECORD_NOTE                1
+OPT__RECORD_UNPHY               1
+OPT__RECORD_MEMORY              1
+OPT__RECORD_PERFORMANCE         1
+OPT__RECORD_CENTER              0
+OPT__MANUAL_CONTROL             1
+OPT__RECORD_USER                0
+OPT__OPTIMIZE_AGGRESSIVE        0
+OPT__SORT_PATCH_BY_LBIDX        0
+***********************************************************************************
+
+
+Parameters of Simulation Checks
+***********************************************************************************
+OPT__CK_REFINE                  0
+OPT__CK_PROPER_NESTING          0
+OPT__CK_CONSERVATION            0
+   ANGMOM_ORIGIN_X              5.0000000e-01
+   ANGMOM_ORIGIN_Y              5.0000000e-01
+   ANGMOM_ORIGIN_Z              5.0000000e-01
+OPT__CK_NORMALIZE_PASSIVE       0
+OPT__CK_RESTRICT                0
+OPT__CK_FINITE                  0
+OPT__CK_PATCH_ALLOCATE          0
+OPT__CK_FLUX_ALLOCATE           0
+OPT__CK_NEGATIVE                0
+OPT__CK_MEMFREE                 1.0000000e+00
+OPT__CK_INPUT_FLUID             0
+***********************************************************************************
+
+
+Flag Criterion (Lohner Error Estimator)
+***********************************************************************************
+  Level    Threshold_Refine  Threshold_Derefine              Filter              Soften      MinimumDensity
+      0       8.0000000e-01       8.0000000e-01       1.0000000e-02       0.0000000e+00       0.0000000e+00
+      1       8.0000000e-01       8.0000000e-01       1.0000000e-02       0.0000000e+00       0.0000000e+00
+      2       8.0000000e-01       8.0000000e-01       1.0000000e-02       0.0000000e+00       0.0000000e+00
+***********************************************************************************
+
+
+Flag Criterion (User-defined)
+***********************************************************************************
+  Level           Threshold
+      0       2.5000000e-01
+      1       2.5000000e-01
+      2       2.5000000e-01
+***********************************************************************************
+
+
+Cell Size and Scale (scale = number of cells at the finest level)
+***********************************************************************************
+  Level                           Cell Size                Cell Scale
+      0              0.03125000000000000000                       512
+      1              0.01562500000000000000                       256
+      2              0.00781250000000000000                       128
+      3              0.00390625000000000000                        64
+      4              0.00195312500000000000                        32
+      5              0.00097656250000000000                        16
+      6              0.00048828125000000000                         8
+      7              0.00024414062500000000                         4
+      8              0.00012207031250000000                         2
+      9              0.00006103515625000000                         1
+***********************************************************************************
+
+
+Compilation Time
+***********************************************************************************
+May  3 2025 19:30:58
+***********************************************************************************
+
+
+Current Time
+***********************************************************************************
+Sat May  3 19:32:21 2025
+***********************************************************************************
+
+
+Git information
+***********************************************************************************
+Branch : tommy_HSES
+Commit : 2d616eee846dbbdc94473c4d5a823c3141b5ef73
+***********************************************************************************
+
+
+Device Diagnosis
+***********************************************************************************
+MPI_Rank =   0, hostname =        Mac, PID = 12772
+CPU Info :
+***********************************************************************************
+
+
+
+Total Processing Time : 1216.862658 s
+
