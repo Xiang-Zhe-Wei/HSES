@@ -7,13 +7,30 @@ static inline real RhoHernquist(const real r, const real M, const real a) // gam
 }
 // =====================================
 
+
+// https://hackmd.io/mH2qiL4zRii5Pbz6Tn6ZcA?view -- Pressure equation
+// ====== Pressure Hernquist ===========
+static inline real PressureHernquist(const real r, const real M, const real a){
+   const real G = NEWTON_G;          
+   const real ap = r + a;
+   real term_log = log(ap / r);
+   real term1   = a / ap;
+   real term2   = a*a / (2.0*ap*ap);
+   real term3   = a*a*a / (3.0*ap*ap*ap);
+   real term4   = a*a*a*a / (4.0*ap*ap*ap*ap);
+   return (G * M * M) / (2.0*M_PI*pow(a,4.0)) * ( term_log - term1 - term2 - term3 - term4 );
+}
+// =====================================
+
+
+
+
+
 // problem-specific global variables
 // =======================================================================================
-static double Blast_Dens_Bg;        // background mass density
-static double Blast_Pres_Bg;        // background pressure
-static double Blast_Pres_Exp;       // explosion pressure
-static double Blast_Radius;         // explosion radius
 static double Blast_Center[3];      // explosion center
+static double Mtot;                 // total mass
+static double a;                    // scale length
 // =======================================================================================
 
 // problem-specific function prototypes
@@ -101,13 +118,11 @@ void LoadInputTestProb( const LoadParaMode_t load_mode, ReadPara_t *ReadPara, HD
 // ***************************************************************************************************************************
 // LOAD_PARA( load_mode, "KEY_IN_THE_FILE",      &VARIABLE,               DEFAULT,      MIN,              MAX               );
 // ***************************************************************************************************************************
-   LOAD_PARA( load_mode, "Blast_Dens_Bg",        &Blast_Dens_Bg,         -1.0,          Eps_double,       NoMax_double      );
-   LOAD_PARA( load_mode, "Blast_Pres_Bg",        &Blast_Pres_Bg,         -1.0,          Eps_double,       NoMax_double      );
-   LOAD_PARA( load_mode, "Blast_Pres_Exp",       &Blast_Pres_Exp,        -1.0,          Eps_double,       NoMax_double      );
-   LOAD_PARA( load_mode, "Blast_Radius",         &Blast_Radius,          -1.0,          Eps_double,       NoMax_double      );
    LOAD_PARA( load_mode, "Blast_Center_X",       &Blast_Center[0],       -1.0,          NoMin_double,     amr->BoxSize[0]   );
    LOAD_PARA( load_mode, "Blast_Center_Y",       &Blast_Center[1],       -1.0,          NoMin_double,     amr->BoxSize[1]   );
    LOAD_PARA( load_mode, "Blast_Center_Z",       &Blast_Center[2],       -1.0,          NoMin_double,     amr->BoxSize[2]   );
+   LOAD_PARA( load_mode, "Mtot",                 &Mtot,                  -1.0,          Eps_double,       NoMax_double      );
+   LOAD_PARA( load_mode, "a",                    &a,                     -1.0,          Eps_double,       NoMax_double      );
 
 } // FUNCITON : LoadInputTestProb
 
@@ -154,18 +169,38 @@ void SetParameter()
 
 // (3) reset other general-purpose parameters
 //     --> a helper macro PRINT_RESET_PARA is defined in Macro.h
+// ref : https://en.wikipedia.org/wiki/Free-fall_time
    const double End_T_Default    = 5.0e-3;
    const long   End_Step_Default = __INT_MAX__;
 
     if (END_T < 0.0 || END_T >= End_T_Default) {
-        const double Mtot  = 1.0;
-        const double a     = 1.0;
-        const double G     = 1.0;
-        const double r_min = 0.5 * amr->dh[0];
-        const double rho0  = RhoHernquist(r_min, Mtot, a);
-        const double tff   = sqrt(3.0*M_PI / (32.0 * G * rho0));
-        END_T = 1.05 * tff / UNIT_T;
-        PRINT_RESET_PARA(END_T, FORMAT_REAL, " (auto-set to ~1 t_ff)");
+      // free falling time
+      const double G       = NEWTON_G;
+      const double R       = 0.5 * amr->BoxSize[0];
+      const double m       = Mtot * R*R / SQR(R + a);
+      const double rho_avg = 3 * m / (4 * M_PI * CUBE(R));
+      const double tff     = sqrt(3.0*M_PI / (32.0 * G * rho_avg));
+      END_T = tff;
+
+      // sound cross time
+      // ref : https://crossfield.ku.edu/A391_2020A/lec19a.pdf
+      const double r = 0.5 * amr->dh[0];           
+      const double rho0 = RhoHernquist(r, Mtot, a);
+
+      // Unstable Pressure
+      const real Unstable_Press = ( r <= 0.01 ) ? 1e5 : 1e-2;               
+      const double P0 = Unstable_Press;
+
+      // const double P0 = PressureHernquist(r, Mtot, a);
+      const double cs = sqrt( P0 / rho0 );                 
+      const double tsc = amr->BoxSize[0] / cs;
+
+      Aux_Message( stdout, "=============================================================================\n" );
+      Aux_Message(stdout, "Sound-crossing time t_sc = %e\n", tsc);
+      Aux_Message(stdout, "Free-fall time t_ff = %e\n", tff);
+      Aux_Message(stdout, "t_sc / t_ff = %e\n", tsc / tff);
+      PRINT_RESET_PARA(END_T, FORMAT_REAL, " (auto-set to ~1 t_ff)");
+      Aux_Message( stdout, "=============================================================================\n" );
     }
 
 
@@ -180,19 +215,11 @@ void SetParameter()
    if ( MPI_Rank == 0 )
    {
 //    assuming EOS_GAMMA (must not invoke any EoS routine here since it has not been initialized)
-      const double ExpVol  = 4.0*M_PI/3.0*CUBE(Blast_Radius);
-      const double ExpEngy = Blast_Pres_Exp/(GAMMA-1.0)*ExpVol;
 #     if ( EOS != EOS_GAMMA )
       Aux_Message( stderr, "WARNING : the total explosion energy below assumes EOS_GAMMA !!\n" );
 #     endif
-
       Aux_Message( stdout, "=============================================================================\n" );
       Aux_Message( stdout, "  test problem ID           = %d\n",     TESTPROB_ID );
-      Aux_Message( stdout, "  background mass density   = %13.7e\n", Blast_Dens_Bg );
-      Aux_Message( stdout, "  background pressure       = %13.7e\n", Blast_Pres_Bg );
-      Aux_Message( stdout, "  explosion pressure        = %13.7e\n", Blast_Pres_Exp );
-      Aux_Message( stdout, "  total explosion energy    = %13.7e (assuming constant-gamma EoS)\n", ExpEngy );
-      Aux_Message( stdout, "  explosion radius          = %13.7e\n", Blast_Radius );
       Aux_Message( stdout, "  explosion center          = (%13.7e, %13.7e, %13.7e)\n", Blast_Center[0], Blast_Center[1],
                                                                                        Blast_Center[2] );
       Aux_Message( stdout, "  END_T                     = %13.7e\n", END_T );
@@ -205,19 +232,6 @@ void SetParameter()
 } // FUNCTION : SetParameter
 
 
-
-
-// https://hackmd.io/mH2qiL4zRii5Pbz6Tn6ZcA?view -- Pressure equation
-static inline real PressureHernquist(const real r, const real M, const real a){
-   const real G = NEWTON_G;          
-   const real ap = r + a;
-   real term_log = log(ap / r);
-   real term1   = a / ap;
-   real term2   = a*a / (2.0*ap*ap);
-   real term3   = a*a*a / (3.0*ap*ap*ap);
-   real term4   = a*a*a*a / (4.0*ap*ap*ap*ap);
-   return (G * M * M) / (2.0*M_PI*pow(a,4.0)) * ( term_log - term1 - term2 - term3 - term4 );
-}
 //-------------------------------------------------------------------------------------------------------
 // Function    :  SetGridIC
 // Description :  Set the problem-specific initial condition on grids
@@ -242,15 +256,11 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
 {
    const double r = SQRT( SQR(x-Blast_Center[0]) + SQR(y-Blast_Center[1]) + SQR(z-Blast_Center[2]) );
    double Dens, MomX, MomY, MomZ, Pres, Eint, Etot;
-   const real Mtot = 1.0;
-   const real a = 1.0;
    const real rho = RhoHernquist(r, Mtot, a);
-
-
-   // Dens = Blast_Dens_Bg;
-   // Pres = ( r <= Blast_Radius ) ? Blast_Pres_Exp : Blast_Pres_Bg;
+   const real Unstable_Press = ( r <= 0.05 ) ? 1e5 : 1e-2;
+   Pres = Unstable_Press;
    Dens = rho;
-   Pres = PressureHernquist(r, Mtot, a);
+   // Pres = PressureHernquist(r, Mtot, a);
 
    MomX = 0.0;
    MomY = 0.0;

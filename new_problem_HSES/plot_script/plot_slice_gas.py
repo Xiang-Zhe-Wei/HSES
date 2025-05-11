@@ -51,8 +51,10 @@ ts = yt.DatasetSeries( [ prefix+'/Data_%06d'%idx for idx in range(idx_start, idx
 for ds in ts.piter():
 
    sz = yt.SlicePlot( ds, 'z', field, center=center_mode  )
-   sz.set_zlim( field, 0.0, 3.5 )
-   sz.set_log( field, False )
+   # sz.set_log( field, False )
+   # sz.set_zlim( field, 0.0, 3.5 )
+   sz.set_log( field, True )
+   sz.set_zlim(field, 1e-4, 1e1)
    sz.set_cmap( field, colormap )
    sz.set_unit( field, 'code_mass/code_length**3' )
    sz.set_axes_unit( 'code_length' )
