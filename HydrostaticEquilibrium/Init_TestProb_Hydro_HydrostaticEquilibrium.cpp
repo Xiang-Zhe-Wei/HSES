@@ -176,7 +176,9 @@ void SetParameter()
     if (END_T < 0.0 || END_T >= End_T_Default) {
       // free falling time
       const double G       = NEWTON_G;
-      const double R       = 0.5 * amr->BoxSize[0];
+      const double N_max = 0.5 * amr->BoxSize[0] / a; 
+      const double R = N_max * a;
+
       const double m       = Mtot * R*R / SQR(R + a);
       const double rho_avg = 3 * m / (4 * M_PI * CUBE(R));
       const double tff     = sqrt(3.0*M_PI / (32.0 * G * rho_avg));
@@ -184,11 +186,11 @@ void SetParameter()
 
       // sound cross time
       // ref : https://crossfield.ku.edu/A391_2020A/lec19a.pdf
-      const double r = 0.5 * amr->dh[0];           
+      const double r = R;           
       const double rho0 = RhoHernquist(r, Mtot, a);
 
       // Unstable Pressure
-      const real Unstable_Press = ( r <= 0.01 ) ? 1e5 : 1e-2;               
+      const real Unstable_Press = ( r <= 1.0 ) ? 10.0 * PressureHernquist(r, Mtot, a) : 1e-2;           
       const double P0 = Unstable_Press;
 
       // const double P0 = PressureHernquist(r, Mtot, a);
@@ -257,10 +259,13 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
    const double r = SQRT( SQR(x-Blast_Center[0]) + SQR(y-Blast_Center[1]) + SQR(z-Blast_Center[2]) );
    double Dens, MomX, MomY, MomZ, Pres, Eint, Etot;
    const real rho = RhoHernquist(r, Mtot, a);
-   const real Unstable_Press = ( r <= 0.05 ) ? 1e5 : 1e-2;
+
+   // unstable
+   const real Unstable_Press = ( r <= 1.0 ) ? 10.0 * PressureHernquist(r, Mtot, a) : 1e-2;
    Pres = Unstable_Press;
-   Dens = rho;
+   
    // Pres = PressureHernquist(r, Mtot, a);
+   Dens = rho;
 
    MomX = 0.0;
    MomY = 0.0;
@@ -296,7 +301,8 @@ bool Flag_User_Hydro_Equilibrium(const int i, const int j, const int k,
     const double dr[3]     = {Pos[0]-Center[0], Pos[1]-Center[1], Pos[2]-Center[2]};
     const double Radius    = sqrt(dr[0]*dr[0] + dr[1]*dr[1] + dr[2]*dr[2]);
 
-    const double R_ref = 0.05 * amr->BoxSize[0];
+    // simulation time related
+    const double R_ref = 0.0125 * amr->BoxSize[0];
     return (Radius < R_ref) && (lv <= 2);
 }
 

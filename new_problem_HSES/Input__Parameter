@@ -14,7 +14,7 @@
 
 
 # simulation scale
-BOX_SIZE                      5.0         # box size along the longest side (in Mpc/h if COMOVING is adopted)
+BOX_SIZE                      45.0        # box size along the longest side (in Mpc/h if COMOVING is adopted)
 NX0_TOT_X                     32          # number of base-level cells along x
 NX0_TOT_Y                     32          # number of base-level cells along y
 NX0_TOT_Z                     32          # number of base-level cells along z
@@ -202,7 +202,7 @@ OPT__OPTIMIZE_AGGRESSIVE      0           # apply aggressive optimizations (expe
 # checks
 OPT__CK_REFINE                0           # check the grid refinement [0]
 OPT__CK_PROPER_NESTING        0           # check the proper-nesting condition [0]
-OPT__CK_CONSERVATION          0           # check the conservation law [0]
+OPT__CK_CONSERVATION          1           # check the conservation law [0]
 OPT__CK_NORMALIZE_PASSIVE     0           # check the normalization of passive scalars [0] ##OPT__NORMALIZE_PASSIVE ONLY##
 OPT__CK_RESTRICT              0           # check the data restriction [0]
 OPT__CK_FINITE                0           # check if all variables are finite [0]

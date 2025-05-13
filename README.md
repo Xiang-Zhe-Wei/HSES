@@ -32,6 +32,8 @@ This report provides a comprehensive evaluation of the HSES simulation setup, in
      → Uses yt’s `SlicePlot` to create a density slice through the center of the simulation box.  
    - `radial_profile_evolution.py`  
      → Uses yt’s `ProfilePlot` to plot the time evolution of the radial density profile and compare it with the initial analytical density, thereby verifying that the system remains in hydrostatic equilibrium.
+   - `mass_conservation.py`
+     → Check mass status  
 
 2. For the derivation and explanation of the pressure equation, please refer to the HackMD document:  
     [https://hackmd.io/mH2qiL4zRii5Pbz6Tn6ZcA?view](https://hackmd.io/mH2qiL4zRii5Pbz6Tn6ZcA?view)
