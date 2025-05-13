@@ -24,7 +24,7 @@ This report provides a comprehensive evaluation of the HSES simulation setup, in
 
 ## Notes
 
-1. The following 4 plotting scripts are provided:
+1. The following 5 plotting scripts are provided:
 
    - `plot_Press.py`  
    - `plot_Rho.py`  
