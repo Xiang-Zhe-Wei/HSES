@@ -14,7 +14,7 @@
 
 
 # simulation scale
-BOX_SIZE                      45.0        # box size along the longest side (in Mpc/h if COMOVING is adopted)
+BOX_SIZE                      80.0        # box size along the longest side (in Mpc/h if COMOVING is adopted)
 NX0_TOT_X                     32          # number of base-level cells along x
 NX0_TOT_Y                     32          # number of base-level cells along y
 NX0_TOT_Z                     32          # number of base-level cells along z
@@ -176,7 +176,7 @@ OPT__OUTPUT_ENTHALPY          1           # output reduced enthalpy [1] ##SRHD O
 OPT__OUTPUT_USER_FIELD        0           # output user-defined derived fields [0] -> edit "Flu_DerivedField_User.cpp"
 OPT__OUTPUT_MODE              2           # (1=const step, 2=const dt, 3=dump table) -> edit "Input__DumpTable" for 3
 OUTPUT_STEP                   5           # output data every OUTPUT_STEP step ##OPT__OUTPUT_MODE==1 ONLY##
-OUTPUT_DT                     5.0e-4      # output data every OUTPUT_DT time interval ##OPT__OUTPUT_MODE==2 ONLY##
+OUTPUT_DT                     1.0      # output data every OUTPUT_DT time interval ##OPT__OUTPUT_MODE==2 ONLY##
 OUTPUT_PART_X                 0.5         # x coordinate for OPT__OUTPUT_PART [-1.0]
 OUTPUT_PART_Y                 0.5         # y coordinate for OPT__OUTPUT_PART [-1.0]
 OUTPUT_PART_Z                 0.5         # z coordinate for OPT__OUTPUT_PART [-1.0]

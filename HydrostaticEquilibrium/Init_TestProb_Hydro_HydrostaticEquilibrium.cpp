@@ -145,7 +145,6 @@ void LoadInputTestProb( const LoadParaMode_t load_mode, ReadPara_t *ReadPara, HD
 //-------------------------------------------------------------------------------------------------------
 void SetParameter()
 {
-
    if ( MPI_Rank == 0 )    Aux_Message( stdout, "   Setting runtime parameters ...\n" );
 
 // (1) load the problem-specific runtime parameters
@@ -163,39 +162,34 @@ void SetParameter()
    for (int d=0; d<3; d++)
       if ( Blast_Center[d] < 0.0 )  Blast_Center[d] = 0.5*amr->BoxSize[d];
 
-
 // (2) set the problem-specific derived parameters
 
 
 // (3) reset other general-purpose parameters
 //     --> a helper macro PRINT_RESET_PARA is defined in Macro.h
-// ref : https://en.wikipedia.org/wiki/Free-fall_time
    const double End_T_Default    = 5.0e-3;
    const long   End_Step_Default = __INT_MAX__;
-
     if (END_T < 0.0 || END_T >= End_T_Default) {
       // free falling time
-      const double G       = NEWTON_G;
-      const double N_max = 0.5 * amr->BoxSize[0] / a; 
+      // ref : https://en.wikipedia.org/wiki/Free-fall_time
+      // N is large enough to include most of the mass, then be sure the box size exceeds 2N*a
+      const double N_max = 10.0;
       const double R = N_max * a;
-
-      const double m       = Mtot * R*R / SQR(R + a);
+      const double m = Mtot * R*R / SQR(R + a);
       const double rho_avg = 3 * m / (4 * M_PI * CUBE(R));
-      const double tff     = sqrt(3.0*M_PI / (32.0 * G * rho_avg));
-      END_T = tff;
+      const double tff     = sqrt(3.0*M_PI / (32.0 * NEWTON_G * rho_avg));
+      END_T = 3 * tff;
 
       // sound cross time
       // ref : https://crossfield.ku.edu/A391_2020A/lec19a.pdf
-      const double r = R;           
+      const double r = 6.5 * a;           
       const double rho0 = RhoHernquist(r, Mtot, a);
-
-      // Unstable Pressure
-      const real Unstable_Press = ( r <= 1.0 ) ? 10.0 * PressureHernquist(r, Mtot, a) : 1e-2;           
-      const double P0 = Unstable_Press;
-
-      // const double P0 = PressureHernquist(r, Mtot, a);
+      
+      const double P0 = 0.5 * PressureHernquist(r, Mtot, a);
+      // const double P0 = 1.0 * PressureHernquist(r, Mtot, a);
+      // const double P0 = 1.5 * PressureHernquist(r, Mtot, a);
       const double cs = sqrt( P0 / rho0 );                 
-      const double tsc = amr->BoxSize[0] / cs;
+      const double tsc = r / cs;
 
       Aux_Message( stdout, "=============================================================================\n" );
       Aux_Message(stdout, "Sound-crossing time t_sc = %e\n", tsc);
@@ -210,8 +204,6 @@ void SetParameter()
       END_STEP = End_Step_Default;
       PRINT_RESET_PARA( END_STEP, FORMAT_LONG, "" );
    }
-
-
 
 // (4) make a note
    if ( MPI_Rank == 0 )
@@ -253,18 +245,15 @@ void SetParameter()
 //
 // Return      :  fluid
 //-------------------------------------------------------------------------------------------------------
-void SetGridIC( real fluid[], const double x, const double y, const double z, const double Time,
-                const int lv, double AuxArray[] )
+void SetGridIC( real fluid[], const double x, const double y, const double z, const double Time, const int lv, double AuxArray[] )
 {
    const double r = SQRT( SQR(x-Blast_Center[0]) + SQR(y-Blast_Center[1]) + SQR(z-Blast_Center[2]) );
    double Dens, MomX, MomY, MomZ, Pres, Eint, Etot;
    const real rho = RhoHernquist(r, Mtot, a);
-
-   // unstable
-   const real Unstable_Press = ( r <= 1.0 ) ? 10.0 * PressureHernquist(r, Mtot, a) : 1e-2;
-   Pres = Unstable_Press;
    
-   // Pres = PressureHernquist(r, Mtot, a);
+   Pres = 0.5 * PressureHernquist(r, Mtot, a);
+   // Pres = 1.0 * PressureHernquist(r, Mtot, a);
+   // Pres = 1.5 * PressureHernquist(r, Mtot, a);
    Dens = rho;
 
    MomX = 0.0;
@@ -289,8 +278,7 @@ void SetGridIC( real fluid[], const double x, const double y, const double z, co
 // Function    :  Flag_User_Hydro_Equilibrium
 // Description :  AMR flag criterion: refine center to lv<2
 //-------------------------------------------------------------------------------------------------------
-bool Flag_User_Hydro_Equilibrium(const int i, const int j, const int k,
-                        const int lv, const int PID, const double *Threshold) {
+bool Flag_User_Hydro_Equilibrium(const int i, const int j, const int k, const int lv, const int PID, const double *Threshold) {
     const double dh = amr->dh[lv];
     const double Pos[3] = {
         amr->patch[0][lv][PID]->EdgeL[0] + (i + 0.5)*dh,
@@ -302,7 +290,7 @@ bool Flag_User_Hydro_Equilibrium(const int i, const int j, const int k,
     const double Radius    = sqrt(dr[0]*dr[0] + dr[1]*dr[1] + dr[2]*dr[2]);
 
     // simulation time related
-    const double R_ref = 0.0125 * amr->BoxSize[0];
+    const double R_ref = 2.5 * a;
     return (Radius < R_ref) && (lv <= 2);
 }
 
